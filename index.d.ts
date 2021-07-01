@@ -41,8 +41,8 @@ type CanvasText = {
 };
 
 export interface SavePreference {
-    folder: string;
-    filename: string;
+    folder?: string;
+    filename?: string;
     transparent: boolean;
     imageType: ImageType;
     includeImage?: boolean;
@@ -182,6 +182,7 @@ export interface RNImageEditorProps {
     strokeComponent?: (color: string) => JSX.Element;
     strokeSelectedComponent?: (color: string, index: number, changed: boolean) => JSX.Element;
     strokeWidthComponent?: (width: number) => JSX.Element;
+    strokeWidthComponentMax?: (width: number) => JSX.Element;
 
     strokeColors?: { color: string }[];
     defaultStrokeIndex?: number;
@@ -197,8 +198,8 @@ export interface RNImageEditorProps {
      * @param cropToImageSize default false
      */
     savePreference?: () => {
-        folder: string;
-        filename: string;
+        folder?: string;
+        filename?: string;
         transparent: boolean;
         imageType: ImageType;
         includeImage?: boolean;
