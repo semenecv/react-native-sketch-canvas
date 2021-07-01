@@ -46,11 +46,11 @@ Features
 -------------
 Install with yarn
 ```bash
-yarn add https://github.com/wwimmo/react-native-sketch-canvas.git
+yarn add https://github.com/semenecv/react-native-sketch-canvas.git
 ```
 Link native code (only required for RN below 0.60)
 ```bash
-react-native link @wwimmo/react-native-sketch-canvas
+react-native link @semenecv/react-native-sketch-canvas
 ```
 
 ## Usage
