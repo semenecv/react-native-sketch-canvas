@@ -26,6 +26,7 @@ export default class RNImageEditor extends React.Component {
         strokeComponent: PropTypes.func,
         strokeSelectedComponent: PropTypes.func,
         strokeWidthComponent: PropTypes.func,
+        strokeWidthComponentMax: PropTypes.func,
 
         strokeColors: PropTypes.arrayOf(PropTypes.shape({ color: PropTypes.string })),
         defaultStrokeIndex: PropTypes.number,
@@ -91,6 +92,7 @@ export default class RNImageEditor extends React.Component {
         strokeComponent: null,
         strokeSelectedComponent: null,
         strokeWidthComponent: null,
+        strokeWidthComponentMax: null,
 
         strokeColors: [
             { color: "#000000" },
@@ -236,7 +238,13 @@ export default class RNImageEditor extends React.Component {
             this._strokeWidthStep = -this._strokeWidthStep;
         this.setState({ strokeWidth: this.state.strokeWidth + this._strokeWidthStep });
     }
-
+    
+    nextStrokeWidthMin() {
+        this.setState({ strokeWidth: this.props.minStrokeWidth});
+    }
+    nextStrokeWidthMax() {
+        this.setState({ strokeWidth: this.props.maxStrokeWidth});
+    }
     _renderItem = ({ item, index }) => (
         <TouchableOpacity
             style={{ marginHorizontal: 2.5 }}
@@ -277,9 +285,7 @@ export default class RNImageEditor extends React.Component {
     render() {
         return (
             <View style={this.props.containerStyle}>
-                <View style={{ flexDirection: "row" }}>
-                    <View style={{ flexDirection: "row", flex: 1, justifyContent: "flex-start" }}>
-                        {this.props.closeComponent && (
+                             {this.props.closeComponent && (
                             <TouchableOpacity
                                 onPress={() => {
                                     this.props.onClosePressed();
@@ -288,7 +294,36 @@ export default class RNImageEditor extends React.Component {
                                 {this.props.closeComponent}
                             </TouchableOpacity>
                         )}
-
+                                                {this.props.clearComponent && (
+                            <TouchableOpacity
+                                onPress={() => {
+                                    this.clear();
+                                    this.props.onClearPressed();
+                                }}
+                            >
+                                {this.props.clearComponent}
+                            </TouchableOpacity>
+                        )}
+                <ImageEditor
+                    ref={(ref) => (this._sketchCanvas = ref)}
+                    style={this.props.canvasStyle}
+                    strokeColor={this.state.color + (this.state.color.length === 9 ? "" : this.state.alpha)}
+                    shapeConfiguration={this.props.shapeConfiguration}
+                    onStrokeStart={this.props.onStrokeStart}
+                    onStrokeChanged={this.props.onStrokeChanged}
+                    onStrokeEnd={this.props.onStrokeEnd}
+                    user={this.props.user}
+                    strokeWidth={this.state.strokeWidth}
+                    onSketchSaved={(success, path) => this.props.onSketchSaved(success, path)}
+                    onShapeSelectionChanged={(isShapeSelected) => this.props.onShapeSelectionChanged(isShapeSelected)}
+                    touchEnabled={this.props.touchEnabled}
+                    onPathsChange={this.props.onPathsChange}
+                    text={this.props.text}
+                    localSourceImage={this.props.localSourceImage}
+                    permissionDialogTitle={this.props.permissionDialogTitle}
+                    permissionDialogMessage={this.props.permissionDialogMessage}
+                />
+                <View style={{flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, position: 'absolute', bottom: 24, justifyContent: 'space-between'}}>
                         {this.props.eraseComponent && (
                             <TouchableOpacity
                                 onPress={() => {
@@ -310,19 +345,7 @@ export default class RNImageEditor extends React.Component {
                                 {this.props.deleteSelectedShapeComponent}
                             </TouchableOpacity>
                         )}
-                    </View>
-                    <View style={{ flexDirection: "row", flex: 1, justifyContent: "flex-end" }}>
-                        {this.props.strokeWidthComponent && (
-                            <TouchableOpacity
-                                onPress={() => {
-                                    this.nextStrokeWidth();
-                                }}
-                            >
-                                {this.props.strokeWidthComponent(this.state.strokeWidth)}
-                            </TouchableOpacity>
-                        )}
-
-                        {this.props.undoComponent && (
+                                   {this.props.undoComponent && (
                             <TouchableOpacity
                                 onPress={() => {
                                     this.props.onUndoPressed(this.undo());
@@ -331,49 +354,24 @@ export default class RNImageEditor extends React.Component {
                                 {this.props.undoComponent}
                             </TouchableOpacity>
                         )}
-
-                        {this.props.clearComponent && (
+                                   {this.props.strokeWidthComponent && (
                             <TouchableOpacity
                                 onPress={() => {
-                                    this.clear();
-                                    this.props.onClearPressed();
+                                    this.nextStrokeWidthMin();
                                 }}
                             >
-                                {this.props.clearComponent}
+                                {this.props.strokeWidthComponent(this.state.strokeWidth)}
                             </TouchableOpacity>
                         )}
-
-                        {this.props.saveComponent && (
+                                   {this.props.strokeWidthComponentMax && (
                             <TouchableOpacity
                                 onPress={() => {
-                                    this.save();
+                                    this.nextStrokeWidthMax();
                                 }}
                             >
-                                {this.props.saveComponent}
+                                {this.props.strokeWidthComponentMax(this.state.strokeWidth)}
                             </TouchableOpacity>
                         )}
-                    </View>
-                </View>
-                <ImageEditor
-                    ref={(ref) => (this._sketchCanvas = ref)}
-                    style={this.props.canvasStyle}
-                    strokeColor={this.state.color + (this.state.color.length === 9 ? "" : this.state.alpha)}
-                    shapeConfiguration={this.props.shapeConfiguration}
-                    onStrokeStart={this.props.onStrokeStart}
-                    onStrokeChanged={this.props.onStrokeChanged}
-                    onStrokeEnd={this.props.onStrokeEnd}
-                    user={this.props.user}
-                    strokeWidth={this.state.strokeWidth}
-                    onSketchSaved={(success, path) => this.props.onSketchSaved(success, path)}
-                    onShapeSelectionChanged={(isShapeSelected) => this.props.onShapeSelectionChanged(isShapeSelected)}
-                    touchEnabled={this.props.touchEnabled}
-                    onPathsChange={this.props.onPathsChange}
-                    text={this.props.text}
-                    localSourceImage={this.props.localSourceImage}
-                    permissionDialogTitle={this.props.permissionDialogTitle}
-                    permissionDialogMessage={this.props.permissionDialogMessage}
-                />
-                <View style={{ flexDirection: "row" }}>
                     <FlatList
                         data={this.props.strokeColors}
                         extraData={this.state}
@@ -382,6 +380,15 @@ export default class RNImageEditor extends React.Component {
                         horizontal
                         showsHorizontalScrollIndicator={false}
                     />
+                                            {this.props.saveComponent && (
+                            <TouchableOpacity
+                                onPress={() => {
+                                    this.save();
+                                }}
+                            >
+                                {this.props.saveComponent}
+                            </TouchableOpacity>
+                        )}
                 </View>
             </View>
         );
